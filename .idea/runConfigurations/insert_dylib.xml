@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="insert_dylib" type="AppleRunConfiguration" factoryName="Application" PROGRAM_PARAMS="$USER_HOME$/Library/Developer/Xcode/DerivedData/Hello-fixfsrfqwilrgwgtuhcgbxmlerow/Build/Products/Debug/libHello.dylib /Applications/iShot.app/Contents/Frameworks/PTHotKey.framework/Versions/A/PTHotKey --delete_dylib" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="insert_dylib" TARGET_NAME="insert_dylib" CONFIG_NAME="Release" IS_LOCATION_SIMULATION_SUPPORTED="false" SCHEME_NAME="insert_dylib" IS_LOCATION_SIMULATION_ALLOWED="true" APPLICATION_LANGUAGE="IDELaunchSchemeLanguageUseSystemLanguage" APPLICATION_REGION="" RUN_TARGET_PROJECT_NAME="insert_dylib" RUN_TARGET_NAME="insert_dylib" MAKE_ACTIVE="TRUE" SHOULD_DEBUG_EXTENSIONS="false">
+    <EXTENSION ID="org.jetbrains.appcode.reveal.RevealRunConfigurationExtension">
+      <REVEAL_SETTINGS autoInject="false" autoInstall="true" askToEnableAutoInstall="true" />
+    </EXTENSION>
+    <embedded_app_extension_list />
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
