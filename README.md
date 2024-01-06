@@ -1,36 +1,107 @@
-insert_dylib
+insert_dylib Plus
 ============
 
-Command line utility for inserting a dylib load command into a Mach-O binary.
+## 原作者信息
+原作者: Tyilo <br>
+源仓库地址: https://github.com/Tyilo/insert_dylib
 
-Does the following (to each arch if the binary is fat):
+## 增加的功能
+1. 支持通过--delete_dylib实现删除指定的dylib,同时自动修正Mach-O文件头偏移。
+2. 忘了
+   
+## 代码来源资料
+1. https://blog.csdn.net/jerryandliujie/article/details/84845162 By nsrx
 
-- Adds a `LC_LOAD_DYLIB` load command to the end of the load commands
-- Increments the mach header's `ncmds` and adjusts its `sizeofcmds`
-- ([Removes code signature if present](#removing-code-signature))
+## 介绍
+这是一个可以将dylib插入到目标Mach-O中的工具。
 
-Usage
+对于多架构FAT(AARCH64/Intel)依托钩式的苹果架构，做到了如下功能:
+
+- 暴力增加一个 `LC_LOAD_DYLIB` 命令到Command列表的底部。
+- 增加Mach-O文件头中的 `ncmds` 计数并自动调整 `sizeofcmds`。
+- ([根据需要自动删除代码签名](#removing-code-signature))
+
+用法
 -----
 
 ```
-Usage: insert_dylib dylib_path binary_path [new_binary_path]
-Option flags: --inplace --weak --overwrite --strip-codesig --no-strip-codesig --all-yes
+用法: insert_dylib 注入库路径 原始二进制路径 [修改后的二进制路径]
+可选功能: --inplace --weak --overwrite --strip-codesig --no-strip-codesig --not-all-yes --delete_dylib
 ```
 
-`insert_dylib` inserts a load command to load the `dylib_path` in `binary_path`.
+`insert_dylib` 插入一个库加载命令 `dylib_path` 在 `binary_path`中.
 
-Unless `--inplace` option is specified, `insert_dylib` will produce a new binary at `new_binary_path`.  
-If neither `--inplace` nor `new_binary_path` is specified, the output binary will be located at the same location as the input binary with `_patched` prepended to the name.
+如果指定 `--inplace` 选项, `insert_dylib` 将会自动复制原始文件并写入到 `new_binary_path`.  
 
-If the `--weak` option is specified, `insert_dylib` will insert a `LC_LOAD_WEAK_DYLIB` load command instead of `LC_LOAD_DYLIB`.
+如果指定 `--inplace` 且 `new_binary_path` 被指定, 输出的二进制将会自动复制原始文件并重命名为 `_patched` 到原始二进制相同的目录中.
 
-### Example
+如果 `--weak` 选项被指定, `insert_dylib` 将会插入一个 `LC_LOAD_WEAK_DYLIB` 加载指令替换掉 `LC_LOAD_DYLIB`.
+
+如果`--not-all-yes`被指定,那么所有的操作会等待询问你才会进行下一步。
+
+如果`--delete_dylib`被指定，则会自动在目标二进制中查询`dylib_path`符合的LC_LOAD_DYLIB指令并删除，保存行为与上面保持一致。
+
+
+### 使用例子
+
+//这里是我新增的例程
+
+`--delete_dylib` 选项
+
+原始文件被注入了一个libHello文件
+```bash
+otool -L /Applications/iShot.app/Contents/Frameworks/PTHotKey.framework/Versions/A/PTHotKey
+/Applications/iShot.app/Contents/Frameworks/PTHotKey.framework/Versions/A/PTHotKey:
+	@rpath/PTHotKey.framework/Versions/A/PTHotKey (compatibility version 1.0.0, current version 1.6.0)
+	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 1770.106.0)
+	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2022.0.0)
+	/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon (compatibility version 2.0.0, current version 164.0.0)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1292.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 1770.106.0)
+	/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices (compatibility version 1.0.0, current version 1122.4.0)
+	/Users/qiuchenly/Library/Developer/Xcode/DerivedData/Hello-fixfsrfqwilrgwgtuhcgbxmlerow/Build/Products/Debug/libHello.dylib (compatibility version 0.0.0, current version 0.0.0)
+```
+执行:
+```bash
+sudo /Users/qiuchenly/Library/Developer/Xcode/DerivedData/insert_dylib-enqilexhbjsajadynnbudkehezmz/Build/Products/Release/insert_dylib /Users/qiuchenly/Library/Developer/Xcode/DerivedData/Hello-fixfsrfqwilrgwgtuhcgbxmlerow/Build/Products/Debug/libHello.dylib /Applications/iShot.app/Contents/Frameworks/PTHotKey.framework/Versions/A/PTHotKey /Applications/iShot.app/Contents/Frameworks/PTHotKey.framework/Versions/A/PTHotKey_rm --delete_dylib
+
+
+====================
+2023.2.26 秋城落叶修改版
+感谢insert_dylib的开源人员！仓库地址：https://github.com/Tyilo/insert_dylib
+====================
+
+2024-01-07 03:41:51.540 insert_dylib[39885:983858] loading... /System/Library/Frameworks/Foundation.framework/Versions/C/Foundation
+2024-01-07 03:41:51.540 insert_dylib[39885:983858] loading... /System/Library/Frameworks/AppKit.framework/Versions/C/AppKit
+2024-01-07 03:41:51.540 insert_dylib[39885:983858] loading... /System/Library/Frameworks/Carbon.framework/Versions/A/Carbon
+2024-01-07 03:41:51.540 insert_dylib[39885:983858] loading... /usr/lib/libobjc.A.dylib
+2024-01-07 03:41:51.540 insert_dylib[39885:983858] loading... /usr/lib/libSystem.B.dylib
+2024-01-07 03:41:51.540 insert_dylib[39885:983858] loading... /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+2024-01-07 03:41:51.540 insert_dylib[39885:983858] loading... /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
+2024-01-07 03:41:51.540 insert_dylib[39885:983858] loading... /Users/qiuchenly/Library/Developer/Xcode/DerivedData/Hello-fixfsrfqwilrgwgtuhcgbxmlerow/Build/Products/Debug/libHello.dylib
+删除/Users/qiuchenly/Library/Developer/Xcode/DerivedData/Hello-fixfsrfqwilrgwgtuhcgbxmlerow/Build/Products/Debug/libHello.dylib /Applications/iShot.app/Contents/Frameworks/PTHotKey.framework/Versions/A/PTHotKey_rm的LC_Command成功。%                                                                                            ❯ otool -L /Applications/iShot.app/Contents/Frameworks/PTHotKey.framework/Versions/A/PTHotKey_rm
+/Applications/iShot.app/Contents/Frameworks/PTHotKey.framework/Versions/A/PTHotKey_rm:
+	@rpath/PTHotKey.framework/Versions/A/PTHotKey (compatibility version 1.0.0, current version 1.6.0)
+	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 1770.106.0)
+	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2022.0.0)
+	/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon (compatibility version 2.0.0, current version 164.0.0)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1292.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 1770.106.0)
+	/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices (compatibility version 1.0.0, current version 1122.4.0)
+```
+`libHello.dylib`已经被移除。
+
+
+//下面是原作者的
 
 ```
 $ cat > test.c
 int main(void) {
 	printf("Testing\n");
-	return 0;}
+	return 0;
+}
 ^D
 $ clang test.c -o test &> /dev/null
 $ insert_dylib /usr/lib/libfoo.dylib test

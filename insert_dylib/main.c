@@ -413,7 +413,7 @@ int main(int argc, const char *argv[]) {
     }
 
     printf("\n\n====================\n2023.2.26 秋城落叶修改版\n");
-    printf("感谢insert_dylib的开源人员！仓库地址：https://github.com/Tyilo/insert_dylib\n====================\n\n");
+    printf("感谢insert_dylib的开源人员！\n====================\n\n");
 
     if (dylib_path[0] != '@' && stat(dylib_path, &s) != 0) {
         if (!ask("你提供的dylib文件路径好像不存在. 你还要继续执行吗?")) {
